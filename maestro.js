@@ -1,7 +1,7 @@
 let Token;
 
 
-async function FetchAPI(url, method='GET', data = {}, headers={}) {
+async function FetchAPI(url, method='LIST', data = {}, headers={}) {
   // Default options are marked with *
   const response = await fetch(url, {
     method: method, // *GET, POST, PUT, DELETE, etc.
@@ -23,8 +23,13 @@ async function FetchAPI(url, method='GET', data = {}, headers={}) {
 
 
 async function Login(){
-    posts = await FetchAPI('https://jsonplaceholder.typicode.com/posts')
-    console.log(posts)
+    Token = document.getElementById('name').value;
+    posts = await FetchAPI('https://milestone-maestro.carrene.com/apiv1/projects?');
+    console.log(posts);
+    let elem = document.getElementById('input');
+    elem.parentNode.removeChild(elem); 
+    issue_show()
 }
 
-
+function project_show(){    
+}
