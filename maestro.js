@@ -1,5 +1,6 @@
 let Token;
-let project;
+let projects;
+let issues;
 
 async function FetchAPI(url, method='GET', data = {}, headers={}) {
   // Default options are marked with *
@@ -24,43 +25,87 @@ async function FetchAPI(url, method='GET', data = {}, headers={}) {
 
 async function Login(){
     Token = document.getElementById('name').value;
-    project = await FetchAPI('https://milestone-maestro.carrene.com/apiv1/projects?id=10', "LIST");
-    console.log(project);
+    projects = await FetchAPI('https://milestone-maestro.carrene.com/apiv1/projects', "LIST");
+    console.log(projects);
     let elem = document.getElementById('input');
     elem.parentNode.removeChild(elem); 
-    project_show()
+    ProjectShow()
 }
 
-function project_show(){    
-    let project_length = project.length;
+
+function ProjectShow(){    
+    let project_length = projects.length;
+    let projectDiv = document.createElement("div");
+    projectDiv.id = 'project';
+
+    document.getElementById('app').appendChild(projectDiv);
     for(i=0; i < project_length; i++){
         let div_elem = document.createElement("div");
-        div_elem.id = 'd' + i;
+        div_elem.id = 'd' + projects[i].id;
         div_elem.className = "id";
-        document.getElementById('mehdi').appendChild(div_elem);
-        CreateCardProject(div_elem, i);
+        projectDiv.appendChild(div_elem);
+        CreateCardProject(div_elem, projects[i]);
     }
 }
 
-function CreateCardProject(currentDiv, projectId){
+
+function CreateCardProject(currentDiv, project){
     let idContent = document.createElement("p");
     currentDiv.appendChild(idContent);
-    idContent.innerText = "ID: " + project[projectId].id; 
+    idContent.innerText = "ID: " + project.id; 
 
     let titleContent = document.createElement("p");
     currentDiv.appendChild(titleContent);
-    titleContent.id = "pTitle" + projectId;
-    titleContent.innerText = "Title: " + project[projectId].title;
+    titleContent.id = "pTitle" + project.id;
+    titleContent.innerText = "Title: " + project.title;
 
     let tempoContent = document.createElement("p");
     currentDiv.appendChild(tempoContent);
-    tempoContent.innerText = "Tempo: " + project[projectId].boarding; 
+    tempoContent.innerText = "Tempo: " + project.boarding; 
+
+    let btnContent = document.createElement("BUTTON");
+    currentDiv.appendChild(btnContent);
+    btnContent.innerHTML = 'Nuggets';
+    btnContent.id = 'btn' + project.id;
+    btnContent.onclick = SelectProject;
 }
 
-function SelectProject(e){
-    let P1 = document.getElementById('d0');
-    let P2 = document.getElementById('d1');
-    let P3 = document.getElementById('d2');
-    let P4 = document.getElementById('d3');
+
+async function SelectProject(e){
+    projectId = e.target.id.substr(3, e.target.id.length -2);
+    console.log(projectId);
+    issues = await FetchAPI('https://milestone-maestro.carrene.com/apiv1/issues?projectId=' + projectId, "LIST");
+    IssueShow();
+}
+
+function IssueShow(){
+    let projectDiv = document.getElementById('project')
+    projectDiv.parentNode.removeChild(projectDiv); 
+
+    let issueDiv = document.createElement("div");
+    issueDiv.id = 'issue';
+
+    document.getElementById('app').appendChild(issueDiv);
+
+    for(i=0; i < issues.length; i++){
+        let div_elem = document.createElement("div");
+        div_elem.id = 'd' + issues[i].id;
+        div_elem.className = "id";
+        issueDiv.appendChild(div_elem);
+        CreateCardIssue(div_elem, issues[i]);
+    }
+}
+
+
+function CreateCardIssue(currentDiv, issue){
+    let idContent = document.createElement("p");
+    currentDiv.appendChild(idContent);
+    idContent.innerText = "ID: " + issue.id; 
+
+    let titleContent = document.createElement("p");
+    currentDiv.appendChild(titleContent);
+    titleContent.id = "pTitle" + issue.id;
+    titleContent.innerText = "Title: " + issue.title;
+
 }
 
