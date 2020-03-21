@@ -1,6 +1,8 @@
 let Token;
 let projects;
 let issues;
+let projectId;
+let draftIssue;
 
 async function FetchAPI(url, method='GET', data = {}, headers={}) {
   // Default options are marked with *
@@ -17,6 +19,7 @@ async function FetchAPI(url, method='GET', data = {}, headers={}) {
     redirect: 'follow', // manual, *follow, error
     referrerPolicy: 'no-referrer', // no-referrer, *client
     //body: JSON.stringify(data) // body data type must match "Content-Type" header
+    body: JSON.stringify(data) // body data type must match "Content-Type" header
   });
     resp = await response.json();
   return resp
@@ -26,7 +29,6 @@ async function FetchAPI(url, method='GET', data = {}, headers={}) {
 async function Login(){
     Token = document.getElementById('name').value;
     projects = await FetchAPI('https://milestone-maestro.carrene.com/apiv1/projects', "LIST");
-    console.log(projects);
     let elem = document.getElementById('input');
     elem.parentNode.removeChild(elem); 
     ProjectShow()
@@ -68,6 +70,13 @@ function CreateCardProject(currentDiv, project){
     btnContent.innerHTML = 'Nuggets';
     btnContent.id = 'btn' + project.id;
     btnContent.onclick = SelectProject;
+
+    let btnCreateNugget = document.createElement("BUTTON");
+    currentDiv.appendChild(btnCreateNugget);
+    btnCreateNugget.innerHTML = 'Create Nugget';
+    btnCreateNugget.id = 'CreateNugget' + project.id;
+    btnCreateNugget.className = "createNugget";
+    btnCreateNugget.onclick = CreateNugget;
 }
 
 
@@ -106,6 +115,73 @@ function CreateCardIssue(currentDiv, issue){
     currentDiv.appendChild(titleContent);
     titleContent.id = "pTitle" + issue.id;
     titleContent.innerText = "Title: " + issue.title;
-
 }
 
+
+function CreateNugget(e){
+    projectId = e.target.id.slice(12, 14); 
+    draft_issue();
+    let projectDiv = document.getElementById('project');
+    projectDiv.parentNode.removeChild(projectDiv);
+  
+    let nuggetDiv = document.createElement('div');
+    document.getElementById('app').appendChild(nuggetDiv);
+    nuggetDiv.className = "nugget";
+  
+    let save = document.createElement('BUTTON');
+    nuggetDiv.appendChild(save);
+    save.id = 'save';
+    save.className = 'save_btn';
+    save.innerHTML = 'Save';
+    save.onclick = finilize_issue;
+    
+    for (i=0; i < 4; i++){
+        let input_name = document.createElement("INPUT");
+        let span_name = document.createElement("SPAN");
+        nuggetDiv.appendChild(input_name);
+        nuggetDiv.appendChild(span_name);
+        input_name.id = 'input' + i;
+        span_name.id = 'span' + i;
+        if(input_name.id == 'input0'){
+            let text = document.createTextNode('Name');
+            span_name.appendChild(text);
+            input_name.before(span_name);
+        }
+        else if(input_name.id == 'input1'){
+            let text = document.createTextNode('Type');
+            span_name.appendChild(text);
+            input_name.before(span_name);
+        }
+        else if(input_name.id == 'input2'){
+            let text = document.createTextNode('Priority');
+            span_name.appendChild(text);
+            input_name.before(span_name);
+        }
+        else if(input_name.id == 'input3'){
+            let text = document.createTextNode('Description');
+            span_name.appendChild(text);
+            input_name.before(span_name);
+        }
+        input_name.className = "nugget-grid";
+        span_name.className = "nugget-grid";
+    }
+}
+
+
+async function draft_issue(){
+    draft_issue = await FetchAPI('https://milestone-maestro.carrene.com/apiv1/draftissues', "DEFINE");
+    draftIssue = draft_issue.id;
+}
+
+
+async function finilize_issue(){
+    let name = document.getElementById('input0').value;
+    let kind = document.getElementById('input1').value;
+    let priority = document.getElementById('input2').value;
+    let description = document.getElementById('input3').value;
+    finilize = await FetchAPI(
+        'https://milestone-maestro.carrene.com/apiv1/draftissues/' + draftIssue, "FINALIZE",
+            data = {"title": name, "stage": "triage", "description": description, "projectId": projectId, 
+              "priority": priority, "kind": kind, "days": 3}
+    );
+}
