@@ -119,7 +119,7 @@ function CreateCardIssue(currentDiv, issue){
 
 
 function CreateNugget(e){
-    projectId = e.target.id.slice(12, 14); 
+    projectId = e.target.id.slice(12, e.target.id.length); 
     draft_issue();
     let projectDiv = document.getElementById('project');
     projectDiv.parentNode.removeChild(projectDiv);
